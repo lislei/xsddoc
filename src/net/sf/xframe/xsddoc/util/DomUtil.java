@@ -76,15 +76,14 @@ public final class DomUtil {
      * @return the given node
      */
     public static Node removeDuplicates(final Node parent) {
-        if (parent == null) {
-         return null;
-        }
-        final NodeList children = parent.getChildNodes();
-        for (int i = children.getLength() - 1; i >= 0; i--) {
-            final Node child = children.item(i);
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                if (hasDuplicate(children, child)) {
-                    parent.removeChild(child);
+        if (parent != null) {
+            final NodeList children = parent.getChildNodes();
+            for (int i = children.getLength() - 1; i >= 0; i--) {
+                final Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    if (hasDuplicate(children, child)) {
+                        parent.removeChild(child);
+                    }
                 }
             }
         }

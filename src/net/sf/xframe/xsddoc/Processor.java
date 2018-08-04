@@ -156,13 +156,13 @@ public final class Processor {
     private Transformer tHelp = null;
 
     /** Cache of loaded schemas. */
-    private Map schemaCache = new HashMap();
+    private Map<String, Document> schemaCache = new HashMap<>();
 
     /** Cache of sources of loaded schemas. */
-    private Map sourceCache = new HashMap();
+    private Map<String, Source> sourceCache = new HashMap<>();
 
     /** Cache of imported schemas. */
-    private Map importCache = new HashMap();
+    private Map<String, Object> importCache = new HashMap<>();
 
     /** filename of schema. */
     private String mainSchemaLocation = "";
@@ -231,7 +231,7 @@ public final class Processor {
     private boolean initialized = false;
 
     /** Map of all already processed schema locations. */
-    private Map schemaLocationProcessedMap = new HashMap();
+    private Map<String, Object> schemaLocationProcessedMap = new HashMap<>();
 
     /** Reference to the current activ listener. */
     private ProcessorListener listener;
@@ -503,12 +503,8 @@ public final class Processor {
         }
         final File outFile = new File(this.out);
 
-        if (!outFile.exists()) {
-            if (createFolder) {
-                outFile.mkdirs();
-            } else {
-                throw new ProcessorException("output folder doesn't exist: " + outFile);
-            }
+        if (createFolder) {
+            outFile.mkdirs();
         }
         if (!outFile.exists()) {
             throw new ProcessorException("output folder doesn't exist: " + outFile);
@@ -641,10 +637,10 @@ public final class Processor {
         final String resourceName = "/" + this.resourcePrefix + "/xslt/" + fileName;
         final Source source = getResourceSource(resourceName, RESOURCE_PROTOCOL + resourceName);
         final Transformer transformer = tFactory.newTransformer(source);
-        transformer.setErrorListener(tFactory.getErrorListener());
         if (transformer == null) {
             throw new TransformerConfigurationException("Cannot create transformer for " + fileName);
         }
+        transformer.setErrorListener(tFactory.getErrorListener());
         return transformer;
     }
 
@@ -786,7 +782,7 @@ public final class Processor {
         } else {
             final String localName = DomUtil.getAttributeValue(component, "name");
             final String name;
-            if (parentName == null || "".equals(parentName)) {
+            if (parentName == null || parentName.isEmpty()) {
                 name = localName;
             } else {
                 name = parentName + "." + localName;
@@ -800,8 +796,9 @@ public final class Processor {
                 getListener().info("process " + componentType + " {" + targetNamespace + "}" + name + " from file "
                         + schemaLocation);
             }
-            new File(subfolder).mkdir();
-            new File(subfolder + FILE_SEP + componentType).mkdir();
+            File componentDir = new File(new File(subfolder), componentType);
+            componentDir.mkdirs();
+            File componentFile = new File(componentDir, name + getExtension());
             final Source source = getSource(schema, getSystemId(schemaLocation));
             if (!"".equals(parentName)) {
                 ((Element) component).setAttributeNS(NAMESPACE_NAMESPACE, "xmlns:" + XSDDOC_PREFIX, XSDDOC_NAMESPACE);
@@ -809,18 +806,15 @@ public final class Processor {
             }
             try {
                 if (xml) {
-                    transform(source, tComponent, component,
-                        subfolder + FILE_SEP + componentType + FILE_SEP + name + getExtension(),
+                    transform(source, tComponent, component, componentFile.getAbsolutePath(),
                         namespaceURI, componentType, name);
                 } else {
                     final Node result = transform(source, tComponent, component, namespaceURI, componentType, name);
-                    transform(new DOMSource(result, DOM_PROTOCOL), tHtml,
-                        subfolder + FILE_SEP + componentType + FILE_SEP + name + getExtension());
+                    transform(new DOMSource(result, DOM_PROTOCOL), tHtml, componentFile.getAbsolutePath());
                 }
             } catch (Throwable t) {
                 final Node result = createError(namespaceURI, componentType, name, t);
-                transform(new DOMSource(result, DOM_PROTOCOL), tHtml,
-                    subfolder + FILE_SEP + componentType + FILE_SEP + name + getExtension());
+                transform(new DOMSource(result, DOM_PROTOCOL), tHtml, componentFile.getAbsolutePath());
                 getListener().error("xsddoc caused an error: " + ExceptionUtil.getMessage(t));
                 if (isDebug()) {
                     getListener().debug(ExceptionUtil.printStackTrace(t));
@@ -885,7 +879,7 @@ public final class Processor {
                                                 final String parentName)
         throws TransformerException, SAXException, IOException, SchemaException {
         final NodeList components = component.getChildNodes();
-        Node nestedComponent = null;
+        Node nestedComponent;
         for (int i = 0; i < components.getLength(); i++) {
             nestedComponent = components.item(i);
             if (nestedComponent.getNodeType() == Node.ELEMENT_NODE) {
@@ -924,7 +918,7 @@ public final class Processor {
                                 final String schemaLocation)
         throws SAXException, IOException, TransformerException, SchemaException {
         final String rawSchemaLocation = DomUtil.getAttributeValue(component, "schemaLocation");
-        if (rawSchemaLocation == null || "".equals(rawSchemaLocation)) {
+        if (rawSchemaLocation == null || rawSchemaLocation.isEmpty()) {
             getListener().error("included schema without schemaLocation");
             return;
         }
@@ -938,7 +932,7 @@ public final class Processor {
         }
         final Document includedSchema = getDocument(getSystemId(includedSchemaLocation));
         boolean isCameleon = false;
-        if ("".equals(getTargetNamespace(includedSchema))) {
+        if (getTargetNamespace(includedSchema).isEmpty()) {
             isCameleon = true;
             setTargetNamespace(includedSchema, getTargetNamespace(schema));
         }
@@ -973,7 +967,7 @@ public final class Processor {
         throws SAXException, IOException, TransformerException, SchemaException {
         final String rawSchemaLocation = DomUtil.getAttributeValue(component, "schemaLocation");
         final String importedNamespace = DomUtil.getAttributeValue(component, "namespace");
-        if (rawSchemaLocation == null || "".equals(rawSchemaLocation)) {
+        if (rawSchemaLocation == null || rawSchemaLocation.isEmpty()) {
             getListener().error("imported schema without schemaLocation: " + importedNamespace);
             return;
         }
@@ -986,7 +980,7 @@ public final class Processor {
             getListener().info("process imported schema " + importedSchemaLocation);
         }
         if (!importCache.containsKey(importedSchemaLocation)) {
-            importCache.put(importedSchemaLocation, importedSchemaLocation);
+            importCache.put(importedSchemaLocation, Boolean.TRUE);
             final Document importedSchema = getDocument(getSystemId(importedSchemaLocation));
             process(importedSchema, importedSchemaLocation);
         } else if (debug) {
@@ -1164,6 +1158,7 @@ public final class Processor {
         }
         final File file = new File(path).getAbsoluteFile();
         final URL url = file.toURL();
+        //noinspection UnnecessaryLocalVariable
         final String systemId = url.toExternalForm();
         return systemId;
     }
@@ -1248,7 +1243,7 @@ public final class Processor {
      * @deprecated use getSource instead
      */
     Document getDocument(final String systemId) throws SAXException, IOException {
-        Document doc = (Document) schemaCache.get(systemId);
+        Document doc = schemaCache.get(systemId);
         if (doc == null) {
             doc = builder.parse(systemId);
             if (doc != null) {
@@ -1319,7 +1314,7 @@ public final class Processor {
          */
         public Source resolve(final String href, final String base) throws TransformerException {
             try {
-                if (href == null || "".equals(href)) {
+                if (href == null || href.isEmpty()) {
                     return null; // should not happen
                 } else if (href.indexOf(":") > 0) {
                     if (href.startsWith(RESOURCE_PROTOCOL)) {

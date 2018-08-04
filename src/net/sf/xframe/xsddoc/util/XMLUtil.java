@@ -70,7 +70,7 @@ public final class XMLUtil {
         try {
             curdir = System.getProperty("user.dir");
         } catch (SecurityException se) {
-            curdir = "";
+            // continue with curdir=""
         }
         if (null != curdir) {
             String base;
@@ -159,7 +159,7 @@ public final class XMLUtil {
         }
         final URI uri;
         try {
-            if ((null == theBase) || (theBase.length() == 0) || (isAbsouteUrl)) {
+            if ((null == theBase) || (theBase.isEmpty()) || (isAbsouteUrl)) {
                 uri = new URI(theUrlString);
             } else {
                 URI baseURI = new URI(theBase);

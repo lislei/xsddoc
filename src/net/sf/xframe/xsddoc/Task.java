@@ -21,7 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 package net.sf.xframe.xsddoc;
 
 import java.io.File;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -129,10 +130,10 @@ public final class Task extends MatchingTask {
     private String file = null;
 
     /** Fileset in case of fileset based schema localisation. */
-    private Vector filesets = new Vector();
+    private List<FileSet> filesets = new ArrayList<>();
 
     /** Reference to the xsddoc processor. */
-    private Processor processor = null;
+    private Processor processor;
 
     /**
      * Whether to stop the build, when the file to process does not exist or
@@ -184,7 +185,7 @@ public final class Task extends MatchingTask {
     private void process() throws ProcessorException {
         final int isFile = (file == null ? 0 : 1);
         final int isDir = (dir == null ? 0 : 1);
-        final int isFileset = (filesets.size() == 0 ? 0 : 1);
+        final int isFileset = (filesets.isEmpty() ? 0 : 1);
         if (isFile + isDir + isFileset != 1) {
             throw new BuildException("Exactly one of the file or dir attributes, or a fileset element, must be set.");
         }
@@ -211,16 +212,16 @@ public final class Task extends MatchingTask {
                 throw new BuildException("not a directory: " + folder.getAbsolutePath());
             }
             final String[] files = folder.list();
-            for (int i = 0; i < files.length; i++) {
+            for (String file1 : files) {
                 if (debug) {
-                    System.out.println("found file " + files[i]);
+                    System.out.println("found file " + file1);
                 }
-                final File theFile = new File(files[i]);
+                final File theFile = new File(file1);
                 if (!theFile.isDirectory()) {
-                    addSchema(mediatorSchema, folder.getAbsolutePath(), files[i]);
+                    addSchema(mediatorSchema, folder.getAbsolutePath(), file1);
                 } else {
                     if (debug) {
-                        System.out.println("Seems not to be a file " + files[i]);
+                        System.out.println("Seems not to be a file " + file1);
                     }
                 }
             }
@@ -230,8 +231,7 @@ public final class Task extends MatchingTask {
         }
         if (filesets.size() > 0) {
             final Document mediatorSchema = createDocument();
-            for (int i = 0; i < filesets.size(); i++) {
-                final FileSet fileSet = (FileSet) filesets.elementAt(i);
+            for (FileSet fileSet : filesets) {
                 final DirectoryScanner scanner = fileSet.getDirectoryScanner(getProject());
                 addSchemas(mediatorSchema, scanner.getBasedir().getAbsolutePath(), scanner);
             }
@@ -247,6 +247,7 @@ public final class Task extends MatchingTask {
      * @return mediator schema as a DOM document
      */
     private Document createDocument() {
+        //noinspection UnnecessaryLocalVariable
         final Document mediatorSchema = getDocumentBuilder().getDOMImplementation().createDocument(SCHEMA_NS, "schema", null);
         return mediatorSchema;
     }
@@ -284,8 +285,8 @@ public final class Task extends MatchingTask {
      */
     private void addSchemas(final Document mediatorSchema, final String base, final DirectoryScanner scanner) {
         final String[] files = scanner.getIncludedFiles();
-        for (int i = 0; i < files.length; i++) {
-            addSchema(mediatorSchema, base, files[i]);
+        for (String file1 : files) {
+            addSchema(mediatorSchema, base, file1);
         }
     }
 
@@ -299,8 +300,7 @@ public final class Task extends MatchingTask {
      * @param schemaLocation location of the schema to add
      */
     private void addSchema(final Document mediatorSchema, final String base, final String schemaLocation) {
-        String namespace = null;
-        namespace = getNamespace(base, schemaLocation);
+        String namespace = getNamespace(base, schemaLocation);
         if (namespace == null) {
             if (debug) {
                 System.out.println("Seems not to be a schema, ignoring " + schemaLocation);
@@ -507,7 +507,7 @@ public final class Task extends MatchingTask {
      * @param set the set of files to be deleted
      */
     public void addFileset(final FileSet set) {
-        filesets.addElement(set);
+        filesets.add(set);
     }
 
     /**

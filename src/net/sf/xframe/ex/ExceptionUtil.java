@@ -156,10 +156,10 @@ public final class ExceptionUtil {
             return ((CascadingThrowable) throwable).getCause();
         } else if (useReflection) {
             try {
-                final Class clazz = throwable.getClass();
+                final Class<?> clazz = throwable.getClass();
                 final Method method =
                     clazz.getMethod(GET_CAUSE_NAME, GET_CAUSE_PARAMTYPES);
-                return (Throwable) method.invoke(throwable, null);
+                return (Throwable) method.invoke(throwable);
             } catch (final Throwable t) {
                 return null;
             }
@@ -206,7 +206,7 @@ public final class ExceptionUtil {
      */
     public static String getMessage(final Throwable t) {
         final String s = t.getMessage();
-        if (s == null || "".equals(s)) {
+        if (s == null || s.isEmpty()) {
             return t.getClass().getName();
         }
         return s;
