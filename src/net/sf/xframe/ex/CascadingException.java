@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 package net.sf.xframe.ex;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
 
 /**
  * Class from which all xframe exceptions should inherit.
@@ -84,41 +82,5 @@ public class CascadingException extends Exception {
     }
 
 
-    ////////////////////////////////////////////////
-    //    public methods
-    ////////////////////////////////////////////////
 
-    /**
-     * Prints this <code>Throwable</code> and its backtrace to the
-     * standard error stream.
-     *
-     * @see java.lang.Throwable#printStackTrace()
-     */
-    public final void printStackTrace() {
-        super.printStackTrace();
-    }
-
-    /**
-     * Prints this <code>Throwable</code> and its backtrace to the
-     * specified print stream.
-     *
-     * @param s <code>PrintStream</code> to use for output
-     *
-     * @see java.lang.Throwable#printStackTrace(java.io.PrintStream)
-     */
-    public final void printStackTrace(final PrintStream s) {
-        super.printStackTrace(s);
-    }
-
-    /**
-     * Prints this <code>Throwable</code> and its backtrace to the specified
-     * print writer.
-     *
-     * @param w <code>PrintWriter</code> to use for output
-     *
-     * @see java.lang.Throwable#printStackTrace(java.io.PrintWriter)
-     */
-    public final void printStackTrace(final PrintWriter w) {
-        super.printStackTrace(w);
-    }
 }
