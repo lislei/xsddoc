@@ -1487,7 +1487,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:text>any element from </xsl:text>
       <xsl:choose>
         <!-- when the namespace is specified and the value is not ##any -->
-        <xsl:when test="@namespace and not(@namespace = '##any') and not(@namespace = '')">
+        <xsl:when test="(@namespace) and not(@namespace = '##any') and not(@namespace = '')">
           <xsl:choose>
             <xsl:when test="@namespace = '##other'">
               <xsl:text>any other namespace</xsl:text>
