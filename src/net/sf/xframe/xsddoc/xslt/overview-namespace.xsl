@@ -88,7 +88,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:apply-templates>
     </xsl:for-each>
     <xsl:for-each select="xs:include | xs:redefine">
-      <xsl:variable name="schemaLocation" select="@schemaLocation"/>
       <xsl:variable name="redefinedComponents">
         <xsl:call-template name="tostring">
           <xsl:with-param name="nodes" select="xs:element | xs:attribute | xs:complexType | xs:simpleType | xs:group | xs:attributeGroup"/>
@@ -97,14 +96,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:apply-templates select="xs:element | xs:attribute | xs:complexType | xs:simpleType | xs:group | xs:attributeGroup" mode="doc">
         <xsl:with-param name="ignore" select="$ignore"/>
       </xsl:apply-templates>
-      <xsl:for-each select="document(@schemaLocation)/xs:schema">
-        <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-          <xsl:apply-templates select="." mode="overview">
-            <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
-            <xsl:with-param name="ignore" select="$redefinedComponents"/>
-          </xsl:apply-templates>
-        </xsl:if>
-      </xsl:for-each>
+      <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+        <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="overview">
+          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+          <xsl:with-param name="ignore" select="$redefinedComponents"/>
+        </xsl:apply-templates>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
   <!--

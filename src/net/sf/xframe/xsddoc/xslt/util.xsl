@@ -154,14 +154,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:when>
       <xsl:otherwise>
         <xsl:for-each select="xs:include | xs:redefine">
-          <xsl:variable name="schemaLocation" select="@schemaLocation"/>
-          <xsl:for-each select="document($schemaLocation)/xs:schema">
-            <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-              <xsl:apply-templates select="." mode="hasComponents">
-                <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
-              </xsl:apply-templates>
-            </xsl:if>
-          </xsl:for-each>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="hasComponents">
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
