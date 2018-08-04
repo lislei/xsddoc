@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 package net.sf.xframe.xsddoc;
 
+import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,7 +49,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xframe.ex.ExceptionUtil;
-import net.sf.xframe.xsddoc.util.BrowserLauncher;
 import net.sf.xframe.xsddoc.util.DomUtil;
 import net.sf.xframe.xsddoc.util.FileUtil;
 import net.sf.xframe.xsddoc.util.StringUtil;
@@ -519,8 +519,9 @@ public final class Processor {
                 initTransformers();
             }
             process();
-            if (launch) {
-                BrowserLauncher.openURL(out + FILE_SEP + "index" + getExtension());
+            if (launch && Desktop.isDesktopSupported()) {
+                File file = new File(out + FILE_SEP + "index" + getExtension());
+                Desktop.getDesktop().open(file);
             }
         } catch (Exception e) {
             throw new ProcessorException(e.getLocalizedMessage(), e);
