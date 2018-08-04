@@ -133,7 +133,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:variable name="ns">
         <xsl:choose>
           <xsl:when test="normalize-space(/xs:schema/@targetNamespace) = ''">
-            <xsl:value-of select="string('noNamespace')"/>
+            <xsl:value-of select="'noNamespace'"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="/xs:schema/@targetNamespace"/>
@@ -158,7 +158,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <xsl:attribute name="tag">
           <xsl:call-template name="last-substring">
             <xsl:with-param name="string" select="@name"/>
-            <xsl:with-param name="substring" select="string('.')"/>
+            <xsl:with-param name="substring" select="'.'"/>
           </xsl:call-template>
         </xsl:attribute>
         <xsl:attribute name="href">

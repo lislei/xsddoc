@@ -51,15 +51,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--
     Whether to show types in overview pages or not.
   -->
-  <xsl:param name="hideTypes" select="string('false')"/>
+  <xsl:param name="hideTypes" select="'false'"/>
   <!--
     Whether to show groups in overview pages or not.
   -->
-  <xsl:param name="hideGroups" select="string('false')"/>
+  <xsl:param name="hideGroups" select="'false'"/>
   <!--
     Whether to show attributes in overview pages or not.
   -->
-  <xsl:param name="hideAttributes" select="string('false')"/>
+  <xsl:param name="hideAttributes" select="'false'"/>
   <!--
     Root template.
   -->
@@ -414,7 +414,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	  <xsl:value-of select="substring-before(normalize-space(@name), concat('. ', @tag))"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="string('')"/>
+          <xsl:value-of select="''"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -747,7 +747,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template name="superType">
     <xsl:param name="types"/>
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:for-each select="$types[position() = 1]">
       <xsl:if test="$indent">
         <xsl:value-of select="$indent"/>
@@ -820,9 +820,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     todo: sort
   -->
   <xsl:template match="doc:type" mode="subType">
-    <xsl:param name="indentBlk" select="string('')"/>
-    <xsl:param name="indentTyp" select="string('')"/>
-    <xsl:param name="indentSep" select="string('')"/>
+    <xsl:param name="indentBlk" select="''"/>
+    <xsl:param name="indentTyp" select="''"/>
+    <xsl:param name="indentSep" select="''"/>
     <xsl:if test="$indentBlk">
       <xsl:value-of select="$indentBlk"/>
       <br/>
@@ -1279,11 +1279,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:when>
     </xsl:choose>
     <xsl:apply-templates select="doc:attribute[@name] | doc:simpleContent/doc:*/doc:attribute | doc:simpleContent/doc:*/doc:attributeGroup" mode="particle">
-      <xsl:with-param name="indent" select="string('  ')"/>
+      <xsl:with-param name="indent" select="'  '"/>
       <xsl:sort select="@name"/>
     </xsl:apply-templates>
     <xsl:apply-templates select="doc:attribute[@any]" mode="particle">
-      <xsl:with-param name="indent" select="string('  ')"/>
+      <xsl:with-param name="indent" select="'  '"/>
       <xsl:sort select="@any"/>
     </xsl:apply-templates>
     <xsl:if test="../@type = 'complexType' or ../@type = 'element'">
@@ -1291,12 +1291,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </xsl:if>
     <br/>
     <xsl:apply-templates select="doc:sequence | doc:element | doc:choice | doc:all | doc:restriction | doc:list | doc:union | doc:type" mode="particle">
-      <xsl:with-param name="indent" select="string('  ')"/>
+      <xsl:with-param name="indent" select="'  '"/>
     </xsl:apply-templates>
     <br/>
     <xsl:choose>
       <xsl:when test="../@type = 'complexType'">
-        <xsl:value-of select="string('&lt;/...&gt;')"/>
+        <xsl:value-of select="'&lt;/...&gt;'"/>
       </xsl:when>
       <xsl:when test="../@type = 'element'">
         <xsl:value-of select="concat('&lt;/', ../@name, '&gt;')"/>
@@ -1311,17 +1311,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:text>&lt;</xsl:text>
     <xsl:value-of select="@name"/>
     <xsl:apply-templates select="doc:attribute[@name] | doc:simpleContent/doc:*/doc:attribute | doc:simpleContent/doc:*/doc:attributeGroup" mode="particle">
-      <xsl:with-param name="indent" select="string('  ')"/>
+      <xsl:with-param name="indent" select="'  '"/>
       <xsl:sort select="@name"/>
     </xsl:apply-templates>
     <xsl:apply-templates select="doc:attribute[@any]" mode="particle">
-      <xsl:with-param name="indent" select="string('  ')"/>
+      <xsl:with-param name="indent" select="'  '"/>
       <xsl:sort select="@any"/>
     </xsl:apply-templates>
     <xsl:text>></xsl:text>
     <br/>
     <xsl:apply-templates select="doc:sequence | doc:element | doc:choice | doc:all | doc:restriction | doc:list | doc:union | doc:type" mode="particle">
-      <xsl:with-param name="indent" select="string('  ')"/>
+      <xsl:with-param name="indent" select="'  '"/>
     </xsl:apply-templates>
     <br/>
     <xsl:value-of select="concat('&lt;/', @name, '&gt;')"/>
@@ -1424,7 +1424,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Format sequence or group model.
   -->
   <xsl:template match="doc:sequence | doc:group" mode="particle">
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:variable name="count" select="count(*[local-name() != 'documentation'])"/>
     <xsl:value-of select="$indent"/>
     <xsl:if test="$count &gt; 1">
@@ -1446,7 +1446,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Format choice model.
   -->
   <xsl:template match="doc:choice" mode="particle">
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:variable name="count" select="count(*[local-name() != 'documentation'])"/>
     <xsl:value-of select="$indent"/>
     <xsl:if test="$count &gt; 1">
@@ -1468,7 +1468,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Format all model.
   -->
   <xsl:template match="doc:all" mode="particle">
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:variable name="count" select="count(*[local-name() != 'documentation'])"/>
     <xsl:value-of select="$indent"/>
     <xsl:if test="$count &gt; 1">
@@ -1490,7 +1490,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Format any model.
   -->
   <xsl:template match="doc:any" mode="particle">
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:value-of select="$indent"/>
     <xsl:text>(</xsl:text>
     <i>
@@ -1524,8 +1524,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Format element particles.
   -->
   <xsl:template match="doc:element | doc:type" mode="particle">
-    <xsl:param name="separator" select="string(',')"/>
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="separator" select="','"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:param name="count"/>
     <xsl:choose>
       <xsl:when test="@name">
@@ -2031,13 +2031,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         <td class="NavBarCell2">
           <font size="-2">
             <xsl:text disable-output-escaping="yes">DETAILS:&amp;nbsp;</xsl:text>
-            <xsl:if test="string($selected) = 'namespace' or string($selected) = 'component'">
+            <xsl:if test="$selected = 'namespace' or $selected = 'component'">
               <a href="#documentation">
                 <b>DOCUMENTATION</b>
               </a>
               <xsl:text disable-output-escaping="yes">&amp;nbsp;|&amp;nbsp;</xsl:text>
             </xsl:if>
-            <xsl:if test="string($selected) = 'component'">
+            <xsl:if test="$selected = 'component'">
               <a href="#elements">
                 <b>ELEMENTS</b>
               </a>

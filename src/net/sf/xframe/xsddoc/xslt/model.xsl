@@ -49,7 +49,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--
     xsddoc namespace uri.
   -->
-  <xsl:variable name="docNS" select="string('http://xframe.sf.net/xsddoc/doc')"/>
+  <xsl:variable name="docNS" select="'http://xframe.sf.net/xsddoc/doc'"/>
   <!--
     - Collect content model for the three complex model defintion types
     - <code>complexType</code>, <code>element</code> and <code>group</code>.
@@ -119,7 +119,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     - attributes, the so called particles.</p>
   -->
   <xsl:template match="xs:element[count(xs:simpleType | xs:complexType) = 0] | xs:any | xs:all | xs:sequence | xs:choice" mode="model">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:param name="occurs"/>
     <!-- recurse model tree -->
     <xsl:element name="doc:{local-name()}">
@@ -150,7 +150,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
               <xsl:value-of select="@namespace" />
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="string('')" />
+              <xsl:value-of select="''" />
             </xsl:otherwise>
           </xsl:choose>
         </xsl:attribute>
@@ -257,7 +257,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:complexType" mode="model">
     <xsl:param name="occurs"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:apply-templates select="xs:*" mode="model">
       <xsl:with-param name="occurs" select="$occurs"/>
       <xsl:with-param name="prohibited" select="$prohibited"/>
@@ -267,7 +267,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     collect attribute group model.
   -->
   <xsl:template match="xs:attributeGroup" mode="model">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="redefine" select="ancestor::*[name() = 'xs:redefine']"/>
     <xsl:choose>
       <xsl:when test="$redefine and (string(@ref) != '') and position() = 1">
@@ -303,7 +303,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:schema" mode="attributeGroup">
     <xsl:param name="qname"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="attributeGroupDefinition" select="key('attributeGroupDefinitions', $qname)"/>
     <xsl:variable name="attributeGroupRedefinition" select="key('attributeGroupRedefinitions', $qname)"/>
     <xsl:choose>
@@ -330,7 +330,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--
   -->
   <xsl:template match="xs:attribute" mode="model">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:choose>
       <xsl:when test="@ref">
         <xsl:variable name="qname">
@@ -445,7 +445,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     extension or restriction model.
   -->
   <xsl:template match="xs:extension | xs:restriction" mode="model">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="prefix" select="substring-before(@base, ':')"/>
     <xsl:variable name="localname">
       <xsl:choose>
@@ -494,7 +494,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     nested elements.
   -->
   <xsl:template match="xs:element" mode="model" priority="-1">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="folder">
       <xsl:call-template name="namespaceFolder">
         <xsl:with-param name="uri" select="/xs:schema/@targetNamespace"/>
@@ -570,7 +570,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     default elements model.
   -->
   <xsl:template match="xs:*" mode="model" priority="-2">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:element name="doc:{local-name()}">
       <xsl:apply-templates select="@*" mode="model"/>
       <xsl:apply-templates select="xs:annotation" mode="model">
@@ -595,7 +595,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     collect prohibited attribute names
   -->
   <xsl:template match="xs:*" mode="prohibited">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="newProhibited">
       <xsl:for-each select="xs:attribute[@name]">
         <xsl:if test="string(@use) = 'prohibited' or string(@type) != '' or xs:*">
@@ -636,7 +636,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:schema" mode="attribute">
     <xsl:param name="qname"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="attributeDeclaration" select="key('attributeDeclarations', $qname)"/>
     <xsl:choose>
       <xsl:when test="$attributeDeclaration">
@@ -670,7 +670,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     - content model of the derived type must be appended.</p>
   -->
   <xsl:template match="xs:complexContent" mode="model">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="derivation" select="xs:*"/>
     <xsl:variable name="newProhibited">
       <xsl:apply-templates select="xs:*" mode="prohibited">
@@ -717,7 +717,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     - Collect content model of a <code>simpleContent</code>.
   -->
   <xsl:template match="xs:simpleContent" mode="model">
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="derivation" select="xs:*"/>
     <xsl:variable name="newProhibited">
       <xsl:apply-templates select="xs:*" mode="prohibited">
@@ -783,7 +783,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:schema" mode="attributesForType">
     <xsl:param name="qname"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="superTypeDefinition" select="key('typeDefinitions', string($qname)) | key('typeRedefinitions', string($qname))"/>
     <xsl:choose>
       <!-- found: return type definition and terminate -->
@@ -835,7 +835,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:group" mode="model">
     <xsl:param name="occurs"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="redefine" select="ancestor::*[name() = 'xs:redefine']"/>
     <xsl:choose>
       <xsl:when test="$redefine and (string(@ref) != '')">
@@ -889,7 +889,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="xs:schema" mode="groupModel">
     <xsl:param name="qname"/>
     <xsl:param name="occurs"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:param name="group"/>
     <xsl:variable name="groupDefinition" select="key('modelGroupDefinitions', string($qname))"/>
     <xsl:variable name="groupRedefinition" select="key('modelGroupRedefinitions', string($qname))"/>
@@ -926,7 +926,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="xs:schema" mode="typeModel">
     <xsl:param name="qname"/>
     <xsl:param name="occurs"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="localTypeDefinition" select="key('typeDefinitions', string($qname)) | key('typeRedefinitions', string($qname))"/>
     <xsl:choose>
       <xsl:when test="count($localTypeDefinition) &gt; 0">
@@ -953,7 +953,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="xs:schema" mode="elementModel">
     <xsl:param name="qname"/>
     <xsl:param name="occurs"/>
-    <xsl:param name="prohibited" select="string('')"/>
+    <xsl:param name="prohibited" select="''"/>
     <xsl:variable name="localElementDeclaration" select="key('elementDeclaration', $qname)"/>
     <xsl:choose>
       <xsl:when test="count($localElementDeclaration) &gt; 0">

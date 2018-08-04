@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:param name="uri"/>
     <xsl:choose>
       <xsl:when test="normalize-space($uri) = ''">
-        <xsl:value-of select="string('noNamespace')"/>
+        <xsl:value-of select="'noNamespace'"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="translate(normalize-space($uri), ':/\#?&amp;!*', '________')"/>

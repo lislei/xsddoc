@@ -67,7 +67,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:variable name="ns">
       <xsl:choose>
         <xsl:when test="normalize-space(@targetNamespace) = ''">
-          <xsl:value-of select="string('noNamespace')"/>
+          <xsl:value-of select="'noNamespace'"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="/xs:schema/@targetNamespace"/>

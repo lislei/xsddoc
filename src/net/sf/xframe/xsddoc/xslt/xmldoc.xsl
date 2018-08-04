@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="*" mode="xmldocHandler">
     <xsl:param name="children" select="*"/>
-    <xsl:param name="indent" select="string('')"/>
+    <xsl:param name="indent" select="''"/>
     <xsl:if test="local-name() != 'annotation'">
     <div class="code">
       <xsl:value-of select="$indent"/>

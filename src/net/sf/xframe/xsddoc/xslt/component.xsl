@@ -48,39 +48,39 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--
    Descriptive name of the schema.
   -->
-  <xsl:param name="title" select="string('')"/>
+  <xsl:param name="title" select="''"/>
   <!--
    Namespace of component to process.
   -->
-  <xsl:param name="namespace" select="string('http://www.w3.org/2001/XMLSchema')"/>
+  <xsl:param name="namespace" select="'http://www.w3.org/2001/XMLSchema'"/>
   <!--
    Type of component to process.
   -->
-  <xsl:param name="type" select="string('element')"/>
+  <xsl:param name="type" select="'element'"/>
   <!--
     Name of component to process.
   -->
-  <xsl:param name="name" select="string('schema')"/>
+  <xsl:param name="name" select="'schema'"/>
   <!--
     Whether to show sub types or not.
   -->
-  <xsl:param name="hideSubTypes" select="string('false')"/>
+  <xsl:param name="hideSubTypes" select="'false'"/>
   <!--
     Whether to show local usage or not.
   -->
-  <xsl:param name="hideLocalUsage" select="string('false')"/>
+  <xsl:param name="hideLocalUsage" select="'false'"/>
   <!--
     Whether to show types in overview pages or not.
   -->
-  <xsl:param name="hideTypes" select="string('false')"/>
+  <xsl:param name="hideTypes" select="'false'"/>
   <!--
     Whether to show groups in overview pages or not.
   -->
-  <xsl:param name="hideGroups" select="string('false')"/>
+  <xsl:param name="hideGroups" select="'false'"/>
   <!--
     Whether to show attributes in overview pages or not.
   -->
-  <xsl:param name="hideAttributes" select="string('false')"/>
+  <xsl:param name="hideAttributes" select="'false'"/>
   <!--
     Reference to main schema. FIXME reactivate this
   -->
@@ -88,7 +88,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--
     Namespace of W3C XML Schema.
   -->
-  <xsl:variable name="XMLSchemaNS" select="string('http://www.w3.org/2001/XMLSchema')"/>
+  <xsl:variable name="XMLSchemaNS" select="'http://www.w3.org/2001/XMLSchema'"/>
   <!--
     Root template.
   -->
@@ -145,7 +145,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:variable name="ns">
       <xsl:choose>
         <xsl:when test="normalize-space(/xs:schema/@targetNamespace) = ''">
-          <xsl:value-of select="string('noNamespace')"/>
+          <xsl:value-of select="'noNamespace'"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="/xs:schema/@targetNamespace"/>
