@@ -87,7 +87,7 @@ public final class ExceptionUtil {
         if (0 == dp || dp > lines.length) {
             dp = lines.length;
         }
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < dp; i++) {
             sb.append(lines[i]);
             sb.append(LINE_SEPARATOR);
@@ -132,7 +132,7 @@ public final class ExceptionUtil {
         if (!printCascading) {
             return result;
         }
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append(result);
         Throwable cause = getCause(throwable, useReflection);
         while (null != cause) {

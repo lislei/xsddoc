@@ -45,7 +45,7 @@ public final class StringUtil {
      * @return replaced text
      */
     public static String replace(final String text, final char oldChar, final char newChar) {
-        final StringBuffer result = new StringBuffer(text);
+        final StringBuilder result = new StringBuilder(text);
         for (int i = 0; i < result.length(); i++) {
             if (result.charAt(i) == oldChar) {
                 result.setCharAt(i, newChar);
@@ -66,7 +66,7 @@ public final class StringUtil {
      * @return replaced text
      */
     public static String replace(final String text, final String chars, final char newChar) {
-        final StringBuffer result = new StringBuffer(text);
+        final StringBuilder result = new StringBuilder(text);
         for (int i = 0; i < result.length(); i++) {
             for (int k = 0; k < chars.length(); k++) {
                 if (result.charAt(i) == chars.charAt(k)) {

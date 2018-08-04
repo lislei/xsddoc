@@ -228,7 +228,7 @@ public final class XMLUtil {
      */
     private static String formaLocallizedMessageAndLocation(final String systemID,
             final int line, final int column, final String message) {
-        final StringBuffer sbuffer = new StringBuffer();
+        final StringBuilder sbuffer = new StringBuilder();
         if (null != systemID) {
             sbuffer.append(systemID);
         }
