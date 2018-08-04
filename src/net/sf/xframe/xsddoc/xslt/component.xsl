@@ -46,10 +46,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:param name="schemaLocation" select="'S:\BEA\XML\xsddoc\samples\stress\stress.xsd'"/>
   <!--
-   Descriptive name of the schema.
-  -->
-  <xsl:param name="title" select="''"/>
-  <!--
    Namespace of component to process.
   -->
   <xsl:param name="namespace" select="'http://www.w3.org/2001/XMLSchema'"/>
@@ -189,7 +185,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:if test="@substitutionGroup">
         <xsl:attribute name="substitutionGroup"><xsl:value-of select="@substitutionGroup"/></xsl:attribute>
         <xsl:variable name="prefix" select="substring-before(@substitutionGroup, ':')"/>
-        <xsl:variable name="namespace" select="namespace::*[name() = $prefix]"/>
         <xsl:variable name="localname">
           <xsl:choose>
             <xsl:when test="contains(@substitutionGroup, ':')">

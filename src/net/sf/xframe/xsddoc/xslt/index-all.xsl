@@ -32,29 +32,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Include xframe utilities templates.
   -->
   <xsl:include href="util.xsl"/>
+
   <!--
     The file name of the schema to extract from.
   -->
   <xsl:param name="schemaLocation" select="undefined"/>
+
   <!--
-    The element name to extract.
-  -->
-  <xsl:param name="type" select="undefined"/>
-  <!--
-    The name attribute of the element to extract.
-  -->
-  <xsl:param name="name" select="undefined"/>
-  <!--
-    Namespace prefix of target namespace
-  -->
-  <xsl:variable name="targetNamespacePrefix">
-    <xsl:if test="/xs:schema/@targetNamespace">
-      <xsl:value-of select="local-name(/xs:schema/namespace::*[normalize-space(.)=normalize-space(/xs:schema/@targetNamespace)])"/>
-    </xsl:if>
-  </xsl:variable>
-  <!--
-    Root template.
-  -->
+     Root template.
+   -->
   <xsl:template match="/">
     <xsl:apply-templates select="*"/>
   </xsl:template>
@@ -83,7 +69,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     process all schema components.
   -->
   <xsl:template match="xs:schema" mode="overview">
-    <xsl:param name="processedLocations" select="/xs:schema/@targetNamespace"/>
+    <xsl:param name="processedLocations" select="string(@targetNamespace)"/><!-- todo: maybe start with $schemaLocation -->
     <xsl:param name="ignore"/>
     <xsl:apply-templates select="xs:element | xs:attribute | xs:complexType | xs:simpleType | xs:group | xs:attributeGroup" mode="doc">
       <xsl:with-param name="ignore" select="$ignore"/>
@@ -94,7 +80,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:apply-templates>
     </xsl:for-each>
     <xsl:for-each select="xs:include | xs:redefine | xs:import">
-      <xsl:variable name="schemaLocation" select="@schemaLocation"/>
       <xsl:variable name="redefinedComponents">
         <xsl:call-template name="tostring">
           <xsl:with-param name="nodes" select="xs:element | xs:attribute | xs:complexType | xs:simpleType | xs:group | xs:attributeGroup"/>
@@ -103,9 +88,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:apply-templates select="xs:element | xs:attribute | xs:complexType | xs:simpleType | xs:group | xs:attributeGroup" mode="doc">
         <xsl:with-param name="ignore" select="$ignore"/>
       </xsl:apply-templates>
-      <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-        <xsl:apply-templates select="document($schemaLocation)/xs:schema" mode="overview">
-          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
+      <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+        <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="overview">
+          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
           <xsl:with-param name="ignore" select="$redefinedComponents"/>
         </xsl:apply-templates>
       </xsl:if>

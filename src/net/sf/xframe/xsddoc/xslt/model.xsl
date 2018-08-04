@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:doc="http://xframe.sf.net/xsddoc/doc"
-  xmlns:net.sf.xframe.xsddoc="http://xframe.sf.net/xsddoc/doc"
   exclude-result-prefixes="" version="1.0">
   <!--
     This transformation generates XML documentation of a conent model.
@@ -44,8 +43,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <!--
     Reference to main schema.
-  <xsl:variable name="mainSchema" select="/xs:schema"/>
   -->
+  <xsl:variable name="mainSchema" select="/xs:schema"/>
   <!--
     xsddoc namespace uri.
   -->
@@ -163,7 +162,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           <xsl:value-of select="@name"/>
         </xsl:attribute>
         <xsl:variable name="prefix" select="substring-before(@type, ':')"/>
-        <xsl:variable name="namespace" select="namespace::*[name() = $prefix]"/>
         <xsl:variable name="localname">
           <xsl:choose>
             <xsl:when test="contains(@type, ':')">
@@ -201,7 +199,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:if>
       <xsl:if test="@ref">
         <xsl:variable name="prefix" select="substring-before(@ref, ':')"/>
-        <xsl:variable name="namespace" select="namespace::*[name() = $prefix]"/>
         <xsl:variable name="localname">
           <xsl:choose>
             <xsl:when test="contains(@ref, ':')">
@@ -661,8 +658,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     - derived by <code>extension</code> or <code>restriction</code>.
     - 
     - <p>A restricted content model must redefine all particles of the base
-    - type, where only restrictions on their occurance are allowed. That means
-    - the base type can be ignored when collectring the content model.</p>
+    - type, where only restrictions on their occurrence are allowed. That means
+    - the base type can be ignored when collecting the content model.</p>
     - 
     - <p>An extended content model is based on the content model of the base
     - type where particles can only be appended by the derived type. That means
@@ -671,7 +668,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:complexContent" mode="model">
     <xsl:param name="prohibited" select="''"/>
-    <xsl:variable name="derivation" select="xs:*"/>
     <xsl:variable name="newProhibited">
       <xsl:apply-templates select="xs:*" mode="prohibited">
         <xsl:with-param name="prohibited" select="$prohibited"/>
@@ -718,7 +714,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:simpleContent" mode="model">
     <xsl:param name="prohibited" select="''"/>
-    <xsl:variable name="derivation" select="xs:*"/>
     <xsl:variable name="newProhibited">
       <xsl:apply-templates select="xs:*" mode="prohibited">
         <xsl:with-param name="prohibited" select="$prohibited"/>
@@ -740,11 +735,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:apply-templates>
       </xsl:when>
       <xsl:when test="xs:extension">
-        <xsl:variable name="baseType">
-          <xsl:apply-templates select="." mode="resolve">
-            <xsl:with-param name="qname" select="xs:extension/@base"/>
-          </xsl:apply-templates>
-        </xsl:variable>
         <xsl:variable name="prefix" select="substring-before(xs:extension/@base, ':')"/>
         <xsl:variable name="localname">
           <xsl:choose>

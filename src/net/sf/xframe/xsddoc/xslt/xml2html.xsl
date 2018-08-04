@@ -408,16 +408,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
      Format index entry in index-all.
    -->
   <xsl:template match="doc:component" mode="index-all">
-    <xsl:variable name="base">
-      <xsl:choose>
-        <xsl:when test="contains(normalize-space(@name), '. ')">
-	  <xsl:value-of select="substring-before(normalize-space(@name), concat('. ', @tag))"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="''"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
     <dl>
       <a href="{@href}">
         <b><xsl:value-of select="@tag"/></b>

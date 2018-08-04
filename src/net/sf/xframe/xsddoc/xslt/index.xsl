@@ -32,18 +32,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Include xsddoc utilities templates.
   -->
   <xsl:include href="util.xsl"/>
-  <!--
-    The file name of the schema to extract from.
-  -->
-  <xsl:param name="schemaLocation" select="undefined"/>
-  <!--
-    Folder for current schema
-  -->
-  <xsl:variable name="nsFolder">
-    <xsl:call-template name="namespaceFolder">
-      <xsl:with-param name="uri" select="/xs:schema/@targetNamespace"/>
-    </xsl:call-template>
-  </xsl:variable>
+
+
   <!--
     Root template.
   -->

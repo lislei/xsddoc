@@ -147,7 +147,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     Returns a string containing "true" if any component exists.
   -->
   <xsl:template match="xs:schema" mode="hasComponents">
-    <xsl:param name="processedLocations" select="/xs:schema/@targetNamespace"/>
+    <xsl:param name="processedLocations" select="string(@targetNamespace)"/>
     <xsl:choose>
       <xsl:when test="count(xs:complexType | xs:simpleType | xs:element | xs:attribute | xs:group | xs:attributeGroup | xs:redefine/xs:*) > 0">
         <xsl:text>true</xsl:text>

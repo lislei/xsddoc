@@ -40,26 +40,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     The file name of the schema to extract from.
   -->
   <xsl:param name="schemaLocation" select="undefined"/>
-  <!--
-    The element name to extract.
-  -->
-  <xsl:param name="type" select="undefined"/>
-  <!--
-    The name attribute of the element to extract.
-  -->
-  <xsl:param name="name" select="undefined"/>
-  <!--
-    Reference to main schema.
-  -->
-  <xsl:variable name="mainSchema" select="/xs:schema"/>
-  <!--
-    Namespace prefix of target namespace
-  -->
-  <xsl:variable name="targetNamespacePrefix">
-    <xsl:if test="/xs:schema/@targetNamespace">
-      <xsl:value-of select="local-name(/xs:schema/namespace::*[normalize-space(.)=normalize-space(/xs:schema/@targetNamespace)])"/>
-    </xsl:if>
-  </xsl:variable>
+
   <!--
     Root template.
   -->
@@ -93,10 +74,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:include | xs:redefine" mode="schema-summary">
     <xsl:param name="processedLocations"/>
-    <xsl:variable name="schemaLocation" select="@schemaLocation"/>
-    <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-      <xsl:apply-templates select="document($schemaLocation)/xs:schema" mode="schema-summary">
-        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
+    <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+      <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="schema-summary">
+        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
       </xsl:apply-templates>
     </xsl:if>
   </xsl:template>
@@ -104,10 +84,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:import" mode="schema-summary">
     <xsl:param name="processedLocations"/>
-    <xsl:variable name="schemaLocation" select="@schemaLocation"/>
-    <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-      <xsl:apply-templates select="document($schemaLocation)/xs:schema" mode="schema-summary">
-        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
+    <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+      <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="schema-summary">
+        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
       </xsl:apply-templates>
     </xsl:if>
   </xsl:template>

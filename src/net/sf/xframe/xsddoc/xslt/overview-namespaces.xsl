@@ -37,17 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     The file name of the schema to extract from.
   -->
   <xsl:param name="schemaLocation" select="undefined"/>
-  <!--
-    The element name to extract.
-  -->
-  <xsl:param name="type" select="undefined"/>
-  <!--
-    The name attribute of the element to extract.
-  -->
-  <xsl:param name="name" select="undefined"/>
-  <!--
-  -->
-  <xsl:variable name="instance" select="/"/>
+
   <!--
     Root template.
   -->
@@ -82,10 +72,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:include | xs:redefine" mode="schema-summary">
     <xsl:param name="processedLocations"/>
-    <xsl:variable name="schemaLocation" select="@schemaLocation"/>
-    <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-      <xsl:apply-templates select="document($schemaLocation)/xs:schema" mode="schema-summary">
-        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
+    <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+      <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="schema-summary">
+        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
       </xsl:apply-templates>
     </xsl:if>
   </xsl:template>
@@ -93,10 +82,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   -->
   <xsl:template match="xs:import" mode="schema-summary">
     <xsl:param name="processedLocations"/>
-    <xsl:variable name="schemaLocation" select="@schemaLocation"/>
-    <xsl:if test="not(contains($processedLocations, $schemaLocation))">
-      <xsl:apply-templates select="document($schemaLocation)/xs:schema" mode="schema-summary">
-        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $schemaLocation)"/>
+    <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+      <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="schema-summary">
+        <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
       </xsl:apply-templates>
     </xsl:if>
   </xsl:template>

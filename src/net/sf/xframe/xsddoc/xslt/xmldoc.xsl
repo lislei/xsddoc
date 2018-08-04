@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:doc="http://xframe.sf.net/xsddoc/doc" 
-  xmlns:net.sf.xframe.xsddoc="http://xframe.sf.net/xsddoc/doc"
   exclude-result-prefixes="xs" version="1.0">
   <!--
     Format schema fragment as colored source.
