@@ -74,7 +74,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <manifest>
         <attribute name="Manifest-Version" value="1.0"/>
         <attribute name="Main-Class" value="net.sf.xframe.xsddoc.Main"/>
-        <attribute name="Class-Path" value="xalan-2.7.0.jar xerces.jar xercesImpl.jar xml-apis.jar"/>
+        <attribute name="Class-Path" value="xalan-2.7.2.jar xerces.jar xercesImpl.jar xml-apis.jar"/>
         <attribute name="Created-By" value="${project.name} - ${project.author}"/>
         <attribute name="Specification-Title" value="${project.name} - ${subproject.name}"/>
         <attribute name="Specification-Vendor" value="${project.name} - ${project.author}"/>
