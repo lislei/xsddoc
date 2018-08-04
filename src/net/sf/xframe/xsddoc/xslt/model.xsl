@@ -819,7 +819,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:otherwise>
         <!-- not found in this schema: recurse into all imported and included schema -->
         <xsl:for-each select="xs:import | xs:include | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="attributesforType">
+          <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="attributesForType">
             <xsl:with-param name="qname" select="$qname"/>
             <xsl:with-param name="prohibited" select="$prohibited"/>
           </xsl:apply-templates>
