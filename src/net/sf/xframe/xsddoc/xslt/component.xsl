@@ -622,8 +622,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   </xsl:template>
   <!--
     Note about keys:
-      Apach XalanJ2 has a bug with declaring multiple keys with the same name.
-      See http://nagoya.apache.org/bugzilla/show_bug.cgi?id=15527
+    Apache Xalan 2.7 fixed an bug on multiple keys with the same name (on longer keys).
   -->
   <!--
     Type definitions keys.
