@@ -264,4 +264,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+
+  <!-- template accepts valueList and separator. This could be replaced by xslt 2.0 string-join function -->
+  <xsl:template name="string-join">
+    <xsl:param name="valueList"/>
+    <xsl:param name="separator" select="' '"/>
+
+    <xsl:for-each select="$valueList">
+      <xsl:choose>
+        <xsl:when test="position() = 1">
+          <xsl:value-of select="string(.)"/>
+        </xsl:when>
+
+        <xsl:otherwise>
+          <xsl:value-of select="concat($separator, string(.)) "/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
+  </xsl:template>
+
 </xsl:stylesheet>

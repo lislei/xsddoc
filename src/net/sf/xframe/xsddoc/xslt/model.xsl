@@ -42,6 +42,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </attribute>
   -->
   <!--
+    The location of the schema to extract from.
+  -->
+  <xsl:param name="schemaLocation" select="string(undefined)"/>
+  <!--
     Reference to main schema.
   -->
   <xsl:variable name="mainSchema" select="/xs:schema"/>
@@ -301,6 +305,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="xs:schema" mode="attributeGroup">
     <xsl:param name="qname"/>
     <xsl:param name="prohibited" select="''"/>
+    <xsl:param name="processedLocations" select="$schemaLocation"/>
     <xsl:variable name="attributeGroupDefinition" select="key('attributeGroupDefinitions', $qname)"/>
     <xsl:variable name="attributeGroupRedefinition" select="key('attributeGroupRedefinitions', $qname)"/>
     <xsl:choose>
@@ -315,11 +320,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
+        <!-- recurse into all imported and included schema for inherited attributes from supertypes -->
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:include | xs:import | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="attributeGroup">
-            <xsl:with-param name="qname" select="$qname"/>
-            <xsl:with-param name="prohibited" select="$prohibited"/>
-          </xsl:apply-templates>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="attributeGroup">
+              <xsl:with-param name="qname" select="$qname"/>
+              <xsl:with-param name="prohibited" select="$prohibited"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
@@ -629,11 +645,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     </xsl:choose>
   </xsl:template>
   <!--
-    resolve attribute references
+    Resolve attribute references. Attributes from supertypes last.
+    PS:  Sypertypes oredered in the same arder they are included/imported in the xsd file being processed.
   -->
   <xsl:template match="xs:schema" mode="attribute">
     <xsl:param name="qname"/>
     <xsl:param name="prohibited" select="''"/>
+    <xsl:param name="processedLocations" select="$schemaLocation"/>
     <xsl:variable name="attributeDeclaration" select="key('attributeDeclarations', $qname)"/>
     <xsl:choose>
       <xsl:when test="$attributeDeclaration">
@@ -642,11 +660,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:include | xs:import | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="attribute">
-            <xsl:with-param name="qname" select="$qname"/>
-            <xsl:with-param name="prohibited" select="$prohibited"/>
-          </xsl:apply-templates>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation)/xs:schema" mode="attribute">
+              <xsl:with-param name="qname" select="$qname"/>
+              <xsl:with-param name="prohibited" select="$prohibited"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
@@ -774,6 +802,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="xs:schema" mode="attributesForType">
     <xsl:param name="qname"/>
     <xsl:param name="prohibited" select="''"/>
+    <xsl:param name="processedLocations" select="$schemaLocation"/>
     <xsl:variable name="superTypeDefinition" select="key('typeDefinitions', string($qname)) | key('typeRedefinitions', string($qname))"/>
     <xsl:choose>
       <!-- found: return type definition and terminate -->
@@ -808,11 +837,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:when>
       <xsl:otherwise>
         <!-- not found in this schema: recurse into all imported and included schema -->
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:import | xs:include | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="attributesForType">
-            <xsl:with-param name="qname" select="$qname"/>
-            <xsl:with-param name="prohibited" select="$prohibited"/>
-          </xsl:apply-templates>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="attributesForType">
+              <xsl:with-param name="qname" select="$qname"/>
+              <xsl:with-param name="prohibited" select="$prohibited"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
@@ -881,6 +920,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:param name="occurs"/>
     <xsl:param name="prohibited" select="''"/>
     <xsl:param name="group"/>
+    <xsl:param name="processedLocations" select="$schemaLocation"/>
     <xsl:variable name="groupDefinition" select="key('modelGroupDefinitions', string($qname))"/>
     <xsl:variable name="groupRedefinition" select="key('modelGroupRedefinitions', string($qname))"/>
     <xsl:choose>
@@ -900,12 +940,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:when>
       <!-- not found in this schema: recurse into all imported, included or redefined schema -->
       <xsl:otherwise>
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:import | xs:include | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="groupModel">
-            <xsl:with-param name="qname" select="$qname"/>
-            <xsl:with-param name="occurs" select="$occurs"/>
-            <xsl:with-param name="prohibited" select="$prohibited"/>
-          </xsl:apply-templates>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="groupModel">
+              <xsl:with-param name="qname" select="$qname"/>
+              <xsl:with-param name="occurs" select="$occurs"/>
+              <xsl:with-param name="prohibited" select="$prohibited"/>
+              <xsl:with-param name="group" select="$group"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
@@ -917,6 +968,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:param name="qname"/>
     <xsl:param name="occurs"/>
     <xsl:param name="prohibited" select="''"/>
+    <xsl:param name="processedLocations" select="$schemaLocation"/>
     <xsl:variable name="localTypeDefinition" select="key('typeDefinitions', string($qname)) | key('typeRedefinitions', string($qname))"/>
     <xsl:choose>
       <xsl:when test="count($localTypeDefinition) &gt; 0">
@@ -927,12 +979,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:when>
       <xsl:otherwise>
         <!-- not found in this schema: recurse into all imported and included schema -->
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:import | xs:include | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="typeModel">
-            <xsl:with-param name="qname" select="$qname"/>
-            <xsl:with-param name="occurs" select="$occurs"/>
-            <xsl:with-param name="prohibited" select="$prohibited"/>
-          </xsl:apply-templates>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="typeModel">
+              <xsl:with-param name="qname" select="$qname"/>
+              <xsl:with-param name="occurs" select="$occurs"/>
+              <xsl:with-param name="prohibited" select="$prohibited"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
@@ -944,6 +1006,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:param name="qname"/>
     <xsl:param name="occurs"/>
     <xsl:param name="prohibited" select="''"/>
+    <xsl:param name="processedLocations" select="$schemaLocation"/>
     <xsl:variable name="localElementDeclaration" select="key('elementDeclaration', $qname)"/>
     <xsl:choose>
       <xsl:when test="count($localElementDeclaration) &gt; 0">
@@ -954,12 +1017,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:when>
       <xsl:otherwise>
         <!-- not found in this schema: recurse into all imported and included schema -->
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:import | xs:include | xs:redefine">
-          <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="model">
-            <xsl:with-param name="qname" select="$qname"/>
-            <xsl:with-param name="occurs" select="$occurs"/>
-            <xsl:with-param name="prohibited" select="$prohibited"/>
-          </xsl:apply-templates>
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="model">
+              <xsl:with-param name="qname" select="$qname"/>
+              <xsl:with-param name="occurs" select="$occurs"/>
+              <xsl:with-param name="prohibited" select="$prohibited"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>

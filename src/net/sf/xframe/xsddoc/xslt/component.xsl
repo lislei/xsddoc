@@ -124,10 +124,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:import">
           <xsl:if test="not(contains($processedLocations, @schemaLocation))">
             <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="doc">
-              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
             </xsl:apply-templates>
           </xsl:if>
         </xsl:for-each>
@@ -303,6 +310,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
           <xsl:otherwise>
             <xsl:apply-templates select="/xs:schema" mode="superTypes">
               <xsl:with-param name="qname" select="$superTypeQName"/>
+              <xsl:with-param name="processedLocations" select="''"/>
             </xsl:apply-templates>
           </xsl:otherwise>
         </xsl:choose>
@@ -344,6 +352,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:attribute>
     </doc:type>
   </xsl:template>
+
   <!--
     Recursive find super type definition given by qname parameter in schema
     given by context in all included or imported schemas.
@@ -355,15 +364,25 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:choose>
       <!-- found: return type definition and terminate -->
       <xsl:when test="$superTypeDefinition">
-        <xsl:apply-templates select="$superTypeDefinition" mode="superTypes"/>
+        <xsl:apply-templates select="$superTypeDefinition" mode="superTypes">
+          <xsl:with-param name="processedLocations" select="$processedLocations"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <!-- not found in this schema: recurse into all imported and included schema -->
+
+        <!-- recursive width first approach. Processes only first match -->
+        <xsl:variable name="interceptedLocations">
+          <xsl:call-template name="string-join">
+            <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:for-each select="xs:import | xs:include">
           <xsl:if test="not(contains($processedLocations, @schemaLocation))">
             <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="superTypes">
               <xsl:with-param name="qname" select="$qname"/>
-              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
             </xsl:apply-templates>
           </xsl:if>
         </xsl:for-each>
@@ -372,11 +391,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   </xsl:template>
   <!--
     Find and format list of all derived types of a complexType.
-    <p><b>How to</b></p>
-    <p>Recurse type hierarchy and return derivation tree.</p>
+    Graph traversal is different as one have to navigate inverse as the directed edges points to this type.
+    This means for every subtype resolved, you have to make another traversal for the next supertype.
+
+    Challenge: types from other namespaces won't be included unless you reference them.
   -->
   <xsl:template match="xs:complexType | xs:simpleType" mode="subTypes">
-    <xsl:param name="schema" select="$mainSchema"/>
     <xsl:variable name="derivation" select="xs:complexContent/xs:restriction | xs:complexContent/xs:extension | xs:restriction | xs:extension"/>
     <xsl:variable name="nsFolder">
       <xsl:call-template name="namespaceFolder">
@@ -397,7 +417,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       <xsl:attribute name="href">
         <xsl:value-of select="concat('../../', $nsFolder, '/', local-name(), '/', @name, '.html')"/>
       </xsl:attribute>
-      <xsl:apply-templates select="$mainSchema" mode="subTypes">
+      <xsl:apply-templates select="/xs:schema" mode="subTypes"><!-- always starts new traversal from "main schema" -->
         <xsl:with-param name="name" select="@name"/>
         <xsl:with-param name="namespace" select="/xs:schema/@targetNamespace"/>
       </xsl:apply-templates>
@@ -420,11 +440,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <xsl:template match="xs:schema" mode="subTypes">
     <xsl:param name="name"/>
     <xsl:param name="namespace"/>
-    <xsl:param name="processedLocations" select="$schemaLocation"/>
+    <xsl:param name="processedLocations" select="''"/>
     <xsl:variable name="prefix" select="name(namespace::*[. = $namespace])"/>
     <xsl:variable name="qname">
       <xsl:choose>
-        <xsl:when test="string-length($prefix) &gt; 0">
+        <xsl:when test="string-length($prefix) != 0">
           <xsl:value-of select="concat($prefix, ':', $name)"/>
         </xsl:when>
         <xsl:otherwise>
@@ -433,45 +453,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
       </xsl:choose>
     </xsl:variable>
     <xsl:variable name="typeDefinitions" select="key('derivedComplexTypeDefinitions', string($qname)) | key('derivedSimpleTypeDefinitions', string($qname))"/>
-    <xsl:if test="$typeDefinitions">
-      <xsl:apply-templates select="$typeDefinitions" mode="subTypes"/>
-    </xsl:if>
-    <xsl:for-each select="xs:import | xs:include">
-      <xsl:if test="not(contains($processedLocations, @schemaLocation))">
-        <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="subTypes">
-          <xsl:with-param name="name" select="$name"/>
-          <xsl:with-param name="namespace" select="$namespace"/>
-          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+    <xsl:choose>
+      <xsl:when test="$typeDefinitions">
+        <xsl:apply-templates select="$typeDefinitions" mode="subTypes">
         </xsl:apply-templates>
-      </xsl:if>
-    </xsl:for-each>
-  </xsl:template>
-  <!--
-    Format sub-type entry (hierarchical list) for a complexType.
-  -->
-  <xsl:template match="xs:complexType | xs:simpleType" mode="subTypesEntry">
-    <xsl:variable name="derivation" select="xs:complexContent/xs:restriction | xs:complexContent/xs:extension | xs:restriction | xs:extension"/>
-    <xsl:variable name="nsFolder">
-      <xsl:call-template name="namespaceFolder">
-        <xsl:with-param name="uri" select="/xs:schema/@targetNamespace"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <doc:type name="{@name}" namespace="{/xs:schema/@targetNamespace}">
-      <xsl:attribute name="derivation">
-        <xsl:choose>
-          <xsl:when test="$derivation">
-            <xsl:value-of select="local-name($derivation)"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>restriction</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:attribute>
-      <xsl:attribute name="href">
-        <xsl:value-of select="concat('../../', $nsFolder, '/', local-name(), '/', @name, '.html')"/>
-      </xsl:attribute>
-      <xsl:apply-templates select="." mode="subTypes"/>
-    </doc:type>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:for-each select="xs:import | xs:include">
+          <xsl:if test="not(contains($processedLocations, @schemaLocation))">
+            <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="subTypes">
+              <xsl:with-param name="name" select="$name"/>
+              <xsl:with-param name="namespace" select="$namespace"/>
+              <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+            </xsl:apply-templates>
+          </xsl:if>
+        </xsl:for-each>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <!--
     Find and format list of all implementors (elements or attributes).
@@ -496,11 +494,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <xsl:for-each select="key('elementDeclarations', string($qname)) | key('attributeDeclarations', string($qname))">
       <doc:type name="{@name}" namespace="{/xs:schema/@targetNamespace}" href="{concat('../../', $nsFolder, '/', local-name(), '/', @name, '.html')}"/>
     </xsl:for-each>
+
+    <!-- recursive width first approach. Processes only first match -->
+    <xsl:variable name="interceptedLocations">
+      <xsl:call-template name="string-join">
+        <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation"/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:for-each select="xs:import | xs:include">
       <xsl:if test="not(contains($processedLocations, @schemaLocation))">
         <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="implementors">
           <xsl:with-param name="qname" select="$qname"/>
-          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
         </xsl:apply-templates>
       </xsl:if>
     </xsl:for-each>
@@ -539,11 +544,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
         </xsl:attribute>
       </doc:type>
     </xsl:for-each>
+
+    <!-- recursive width first approach. Processes only first match -->
+    <xsl:variable name="interceptedLocations">
+      <xsl:call-template name="string-join">
+        <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation"/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:for-each select="xs:import | xs:include">
       <xsl:if test="not(contains($processedLocations, @schemaLocation))">
         <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="localUsage">
           <xsl:with-param name="qname" select="$qname"/>
-          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', @schemaLocation)"/>
+          <xsl:with-param name="processedLocations" select="concat($processedLocations, ' ', $interceptedLocations)"/>
         </xsl:apply-templates>
       </xsl:if>
     </xsl:for-each>
