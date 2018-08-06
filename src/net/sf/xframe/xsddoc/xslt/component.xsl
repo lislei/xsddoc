@@ -521,7 +521,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   <!--
     Recursive collect local type usage (@type or @base) in included and
     imported schemas.
-    TODO: also collect in redefined components
+    PS: this will not include schemas referencing to this schema only (unidirectional)
     todo use keys
   -->
   <xsl:template match="xs:schema" mode="localUsage">
@@ -548,10 +548,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
     <!-- recursive width first approach. Processes only first match -->
     <xsl:variable name="interceptedLocations">
       <xsl:call-template name="string-join">
-        <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation"/>
+        <xsl:with-param name="valueList" select="xs:import/@schemaLocation | xs:include/@schemaLocation | xs:redefine/@schemaLocation"/>
       </xsl:call-template>
     </xsl:variable>
-    <xsl:for-each select="xs:import | xs:include">
+    <xsl:for-each select="xs:import | xs:include | xs:redefine">
       <xsl:if test="not(contains($processedLocations, @schemaLocation))">
         <xsl:apply-templates select="document(@schemaLocation, .)/xs:schema" mode="localUsage">
           <xsl:with-param name="qname" select="$qname"/>
