@@ -24,8 +24,8 @@ import java.io.File;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.xml.utils.URI;
-import org.apache.xml.utils.URI.MalformedURIException;
+import org.apache.axis2.databinding.types.URI;
+import org.apache.axis2.databinding.types.URI.MalformedURIException;
 import org.xml.sax.SAXParseException;
 
 /**
