@@ -2,4 +2,5 @@
 out
 target
 classes
-*.bak
+*.bakbuild
+build
