@@ -20,13 +20,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 package net.sf.xframe.xsddoc.util;
 
-import java.io.File;
+import org.apache.xml.utils.URI;
+import org.apache.xml.utils.URI.MalformedURIException;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.transform.TransformerException;
-
-import org.apache.axis2.databinding.types.URI;
-import org.apache.axis2.databinding.types.URI.MalformedURIException;
-import org.xml.sax.SAXParseException;
+import java.io.File;
 
 /**
  * This class is used to resolve relative URIs and SystemID
