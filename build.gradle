@@ -4,17 +4,6 @@ plugins {
     id 'java-library'
 }
 
-ant.importBuild('build.xml') { String oldTargetName ->
-    switch (oldTargetName) {
-        case 'javadoc': return 'ant_javadoc'
-        case 'init': return 'ant_init'
-        case 'jar': return 'ant_jar'
-        case 'dist': return 'ant_dist'
-        case 'increaseBuildNumber': return 'ant_increaseBuildNumber'
-        default: return oldTargetName
-    }
-}
-
 sourceSets {
     main {
         java {
