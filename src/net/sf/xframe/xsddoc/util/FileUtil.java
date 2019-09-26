@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Static file utility methods.
@@ -36,9 +38,6 @@ public final class FileUtil {
 
     /** Size of buffer when copying files. */
     private static final int COPY_BUFFER_SIZE = 8192;
-
-    /** file separator from <code>File.separator</code>. */
-    private static final String FILE_SEP = File.separator;
 
     /**
      * Private default constructor to prevent instantiation.
@@ -122,13 +121,15 @@ public final class FileUtil {
      * @return resolved location
      */
     public static String getLocation(final String baseFile, final String file) {
-        if (baseFile == null || file.indexOf(':') > 0) {
+        Path filepath = Paths.get(file);
+        if (baseFile == null || filepath.isAbsolute()) {
             return file;
         }
-        final String parent = new File(baseFile).getParent();
+        Path basepath = Paths.get(baseFile);
+        final Path parent = basepath.getParent();
         if (parent == null) {
             return file;
         }
-        return parent + FILE_SEP + file;
+        return parent.resolve(filepath).toString();
     }
 }
