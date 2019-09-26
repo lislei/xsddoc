@@ -10,6 +10,10 @@ sourceSets {
             srcDirs = [ 'src' ]
             outputDir = file('classes')
         }
+        resources {
+            srcDirs = [ 'src' ]
+            exclude '*.java', 'package.html'
+        }
     }
     test {
         java {
@@ -28,14 +32,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.ant:ant:1.10.6'
+    compileOnly gradleApi()
     implementation 'xalan:xalan:2.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
-    // testImplementation 'org.mockito:mockito-core:3.0.0'
     testImplementation 'com.google.jimfs:jimfs:1.1'
 }
-
-// deploy.dependsOn = [ 'compileJava' ]
 
 compileJava {
     options.compilerArgs << "-g"
@@ -77,7 +78,7 @@ jar {
                 'Implementation-Version': buildNumber + ' ' + new Date().format('YYYY-MM-DD'),
                 'Implementation-Vendor': 'xframe.sf.net',
                 'Implementation-Vendor-Id': 'xframe.sf.net',
-                'Class-Path': 'xalan-2.7.2.jar xerces.jar xercesImpl.jar xml-apis.jar'
+                'Class-Path': 'xalan-2.7.2.jar'
         ])
     }
 }
